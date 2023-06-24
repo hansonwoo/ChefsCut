@@ -1,38 +1,86 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Diagnostics;
+using UnityEngine.EventSystems;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
     GameObject player;
-
-   
+    [SerializeField]
+    float speed;
+    [SerializeField]
+    float dodgeDist; 
+    private State state;
+    Vector2 dodgeDir;
+    [SerializeField]
+    Rigidbody2D rigidbody;
+    float horizontalInput;
+    float verticalInput;
+    int dodgeCharge = 3;
+    private enum State
+    {
+        Normal, 
+        DodgeRoll,
+    }
+    private void Awake()
+    {
+        state = State.Normal;
+    }
     void Update()
     {
-        if (Input.GetButton("s")) 
+        
+        switch (state)
         {
-
-            transform.Translate(0, -.01f, 0);
-
-
+            case State.Normal:
+                HandleMovement();
+                HandleDodgeState();
+                break;
+            case State.DodgeRoll:
+                HandleDodgeRoll(horizontalInput,verticalInput);
+                break;
         }
+        
+    }
 
+    private void HandleMovement()
+    {
+       horizontalInput = Input.GetAxis("Horizontal");
+       verticalInput = Input.GetAxis("Vertical");
+        Vector2 movement = new Vector2(horizontalInput, verticalInput);
+        rigidbody.velocity = movement * speed;
+    } 
 
-        if (Input.GetButton("w"))
+    private void HandleDodgeState()
+    {
+        dodgeDir = new Vector2(horizontalInput, verticalInput);
+        if (Input.GetButtonDown("Fire1"))
         {
-            transform.Translate(0,.01f,0);
+            Debug.Log("dodge begin");
+            state = State.DodgeRoll;
+            Debug.Log("dodge end");
+            
         }
+        
+    }
+    private void HandleDodgeRoll(float horizontalInput, float verticalInput)
+    {
+        dodgeDir = new Vector2(horizontalInput, verticalInput);
 
-        if (Input.GetButton("a"))
+        if (dodgeCharge > 0)
         {
-            transform.Translate(-.01f, 0, 0);
+            transform.Translate(dodgeDir * dodgeDist);
+            dodgeCharge--;
+            state = State.Normal;
         }
-
-
-        if (Input.GetButton("d"))
+        else if (dodgeCharge == 0)
         {
-            transform.Translate(.01f, 0, 0);
+            state = State.Normal;
+
         }
     }
+
 }
