@@ -41,21 +41,6 @@ public class PlayerController : MonoBehaviour
         playerInputActions.Player.DodgeRoll.performed += DodgeRoll;
     }
 
-    void Update()
-    {
-        //movement.x = Input.GetAxisRaw("Horizontal");
-        //movement.y = Input.GetAxisRaw("Vertical");
-        //movement = movement.normalized; // Prevents diagonal inputs from becoming artifically faster by about 40%
-
-        //if (playerState == PlayerStates.Ready)
-        //{
-        //    if (Input.GetKeyDown(KeyCode.Space))
-        //    {
-        //        playerState = PlayerStates.DodgeRolling;
-        //    }
-        //}
-    }
-
     private void FixedUpdate()
     {
         Vector2 movementVector = playerInputActions.Player.Movement.ReadValue<Vector2>();
@@ -76,11 +61,10 @@ public class PlayerController : MonoBehaviour
 
     public void DodgeRoll(InputAction.CallbackContext callbackContext)
     {
-        Debug.Log($"DodgeRoll key pressed! {callbackContext.phase}");
         if (callbackContext.performed && playerState == PlayerStates.Ready)
         {
             var movementVector = playerInputActions.Player.Movement.ReadValue<Vector2>();
-            if (movementVector != Vector2.zero)
+            if (movementVector != Vector2.zero) // TODO: Roll in the direction you're looking if there is no movement input
             {
                 playerState = PlayerStates.DodgeRolling;
                 dodgeRollVector2 = movementVector;
