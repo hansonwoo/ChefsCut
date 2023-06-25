@@ -13,14 +13,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float speed;
     [SerializeField]
-    float dodgeDist; 
+    float dodgeDist;
+    [SerializeField]
+    float timer;
+    [SerializeField]
+    int dodgeCharge = 1;
     private State state;
     Vector2 dodgeDir;
-    [SerializeField]
-    Rigidbody2D rigidbody;
     float horizontalInput;
     float verticalInput;
-    int dodgeCharge = 3;
+    [SerializeField]
+    Rigidbody2D rigidbody;
+
+
+    float dodgeRecharge = 2;
     private enum State
     {
         Normal, 
@@ -33,6 +39,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         
+        
         switch (state)
         {
             case State.Normal:
@@ -43,7 +50,21 @@ public class PlayerController : MonoBehaviour
                 HandleDodgeRoll(horizontalInput,verticalInput);
                 break;
         }
-        
+       if (dodgeCharge == 0)
+        {
+            timer = timer + Time.deltaTime;
+            if (timer > dodgeRecharge)
+            {
+                if (dodgeCharge == 0)
+                {
+                    dodgeCharge++;
+
+                }
+                timer = 0;
+            }
+            
+        }
+       
     }
 
     private void HandleMovement()
