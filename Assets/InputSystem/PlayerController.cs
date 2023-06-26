@@ -12,6 +12,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     public float dodgeRollDistance;
 
+    [SerializeField]
+    int dodgeCharge;
+    [SerializeField]
+    float dodgeRecharge;
+    
     private Vector2 dodgeRollVector2;
 
     private float dodgeRollDuration;
@@ -56,6 +61,21 @@ public class PlayerController : MonoBehaviour
             case PlayerStates.DodgeRolling:
                 playerRigidbody.MovePosition(playerRigidbody.position + dodgeRollVector2 * dodgeRollSpeed * Time.fixedDeltaTime);
                 break;
+        }
+        if (dodgeCharge == 0)
+        {
+            float timer;
+            timer =+ Time.deltaTime;
+            if (timer > dodgeRecharge)
+            {
+                if (dodgeCharge == 0)
+                {
+                    dodgeCharge++;
+
+                }
+                timer = 0;
+            }
+
         }
     }
 
