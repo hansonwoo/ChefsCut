@@ -13,10 +13,15 @@ public class PlayerController : MonoBehaviour
     public float dodgeRollDistance;
 
     [SerializeField]
-    int dodgeCharge;
+    public int dodgeChargeMax;
+
     [SerializeField]
-    float dodgeRecharge;
-    
+    public float dodgeRechargeDuration;
+
+    private int dodgeCharge;
+
+    private float dodgeRechargeStartTime;
+
     private Vector2 dodgeRollVector2;
 
     private float dodgeRollDuration;
@@ -44,6 +49,8 @@ public class PlayerController : MonoBehaviour
         playerInputActions = new PlayerInputActions();
         playerInputActions.Player.Enable();
         playerInputActions.Player.DodgeRoll.performed += DodgeRoll;
+
+        dodgeCharge = dodgeChargeMax;
     }
 
     private void FixedUpdate()
@@ -62,34 +69,32 @@ public class PlayerController : MonoBehaviour
                 playerRigidbody.MovePosition(playerRigidbody.position + dodgeRollVector2 * dodgeRollSpeed * Time.fixedDeltaTime);
                 break;
         }
-        if (dodgeCharge == 0)
+
+        if (dodgeCharge < dodgeChargeMax)
         {
-            float timer;
-            timer =+ Time.deltaTime;
-            if (timer > dodgeRecharge)
+            if (Time.time >= dodgeRechargeStartTime + dodgeRechargeDuration)
             {
-                if (dodgeCharge == 0)
-                {
-                    dodgeCharge++;
-
-                }
-                timer = 0;
+                dodgeCharge++;
             }
-
         }
     }
 
     public void DodgeRoll(InputAction.CallbackContext callbackContext)
     {
-        if (callbackContext.performed && playerState == PlayerStates.Ready)
+        if (dodgeCharge > 0)
         {
-            var movementVector = playerInputActions.Player.Movement.ReadValue<Vector2>();
-            if (movementVector != Vector2.zero) // TODO: Roll in the direction you're looking if there is no movement input
+            if (callbackContext.performed && playerState == PlayerStates.Ready)
             {
-                playerState = PlayerStates.DodgeRolling;
-                dodgeRollVector2 = movementVector;
-                dodgeRollStartTime = Time.time;
-                dodgeRollDuration = dodgeRollDistance / dodgeRollSpeed;
+                var movementVector = playerInputActions.Player.Movement.ReadValue<Vector2>();
+                if (movementVector != Vector2.zero) // TODO: Roll in the direction you're looking if there is no movement input
+                {
+                    playerState = PlayerStates.DodgeRolling;
+                    dodgeRollVector2 = movementVector;
+                    dodgeRollStartTime = Time.time;
+                    dodgeRollDuration = dodgeRollDistance / dodgeRollSpeed;
+                    dodgeRechargeStartTime = Time.time;
+                    dodgeCharge--;
+                }
             }
         }
     }
